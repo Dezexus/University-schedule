@@ -1,0 +1,110 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  email     String?  @unique
+  password  String
+  roles     Json
+}
+
+model Room {
+  id        String       @id @default(cuid())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  name      String?
+  capacity  Int?
+  classes   ClassModel[]
+}
+
+model Department {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name      String?
+  groups    Group[]
+  subjects  Subject[]
+}
+
+model Subgroup {
+  id        String       @id @default(cuid())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  name      String?
+  group     Group?       @relation(fields: [groupId], references: [id])
+  groupId   String?
+  classes   ClassModel[]
+}
+
+model Group {
+  id           String      @id @default(cuid())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  name         String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
+  subgroups    Subgroup[]
+}
+
+model ClassType {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String?
+}
+
+model Subject {
+  id           String       @id @default(cuid())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  classes      ClassModel[]
+  name         String?
+  department   Department?  @relation(fields: [departmentId], references: [id])
+  departmentId String?
+}
+
+model ClassModel {
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  startTime   DateTime?
+  endTime     DateTime?
+  subject     Subject?   @relation(fields: [subjectId], references: [id])
+  subjectId   String?
+  room        Room?      @relation(fields: [roomId], references: [id])
+  roomId      String?
+  typeField   String?
+  teacher     String?
+  subgroup    Subgroup?  @relation(fields: [subgroupId], references: [id])
+  subgroupId  String?
+  dayOfWeek   DayOfWeek? @relation(fields: [dayOfWeekId], references: [id])
+  dayOfWeekId String?
+}
+
+model DayOfWeek {
+  id        String       @id @default(cuid())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  classes   ClassModel[]
+  name      String?
+}
+
+model BellSchedule {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  numberField Int?
+  endTime     DateTime?
+  startTime   DateTime?
+}
